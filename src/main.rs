@@ -1,10 +1,10 @@
 use async_graphql::http::GraphiQLSource;
-use async_graphql::{EmptyMutation, EmptySubscription, Schema};
+use async_graphql::{EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::response::{self, IntoResponse};
 use axum::{routing::get, Extension, Router, Server};
 
-use rustpaste::{QueryRoot, ServiceSchema};
+use rustpaste::{MutationRoot, QueryRoot, ServiceSchema, Storage};
 
 pub async fn graphql_handler(
     schema: Extension<ServiceSchema>,
@@ -19,7 +19,9 @@ pub async fn graphiql() -> impl IntoResponse {
 
 #[tokio::main]
 async fn main() {
-    let schema = Schema::build(QueryRoot, EmptyMutation, EmptySubscription).finish();
+    let schema = Schema::build(QueryRoot, MutationRoot, EmptySubscription)
+        .data(Storage::default())
+        .finish();
 
     let app = Router::new()
         .route("/", get(graphiql).post(graphql_handler))

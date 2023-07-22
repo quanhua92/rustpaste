@@ -6,7 +6,7 @@ pub struct QueryRoot;
 pub struct MutationRoot;
 
 mod storage;
-pub use storage::Storage;
+pub use storage::{PasteStorage, Storage};
 
 #[derive(Clone)]
 pub struct Paste {
@@ -37,7 +37,7 @@ impl QueryRoot {
 
     pub async fn all_pastes(&self, ctx: &Context<'_>) -> Vec<Paste> {
         let storage = ctx.data_unchecked::<Storage>().lock().await;
-        storage.get_all()
+        storage.get_all().await
     }
 }
 
@@ -59,7 +59,7 @@ impl MutationRoot {
             password,
         };
 
-        let result = storage.insert(&id, &paste);
+        let result = storage.insert(&id, &paste).await;
         match result {
             None => paste,
             Some(p) => p,
@@ -68,20 +68,20 @@ impl MutationRoot {
 
     async fn delete_paste(&self, ctx: &Context<'_>, id: String, password: Option<String>) -> bool {
         let mut storage = ctx.data_unchecked::<Storage>().lock().await;
-        let paste = storage.get(&id);
+        let paste = storage.get(&id).await;
 
         match paste {
             None => true,
             Some(paste) => match paste.password {
                 None => {
-                    storage.remove(&id);
+                    storage.remove(&id).await;
                     true
                 }
                 Some(stored_pass) => match password {
                     None => false,
                     Some(input_pass) => {
                         if stored_pass == input_pass {
-                            storage.remove(&id);
+                            storage.remove(&id).await;
                             return true;
                         }
                         false

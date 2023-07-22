@@ -7,6 +7,7 @@ edition = "2021"
 async-graphql = "5.0.10"
 async-graphql-axum = "5.0.10"
 axum = "0.6.18"
+dotenv = "0.15.0"
 nanoid = "0.4.0"
 serde = { version = "1.0.164", features = ["derive"] }
 sqlx = { version = "0.7.1", features = ["runtime-tokio-native-tls", "json", "postgres"] }

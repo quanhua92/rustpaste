@@ -1,0 +1,9 @@
+services:
+  api:
+    container_name: rustpaste_api
+    build: .
+    restart: always
+    ports:
+      - 8080:8080
+    env_file:
+      - .env

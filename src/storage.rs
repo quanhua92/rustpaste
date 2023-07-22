@@ -41,16 +41,11 @@ impl PasteStorage {
         Ok(paste)
     }
 
-    pub async fn remove(&mut self, id: &str) -> Result<Paste, PasteError> {
+    pub async fn remove(&mut self, id: &str) -> Result<(), PasteError> {
         sqlx::query!("DELETE FROM paste WHERE id=$1", id)
             .execute(&self.pool)
             .await?;
-        Ok(Paste {
-            id: id.to_string(),
-            title: "deleted".to_string(),
-            content: "deleted".to_string(),
-            password: None,
-        })
+        Ok(())
     }
 
     pub async fn get(&self, id: &str) -> Result<Option<Paste>, PasteError> {

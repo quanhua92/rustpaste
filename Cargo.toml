@@ -11,4 +11,5 @@ dotenv = "0.15.0"
 nanoid = "0.4.0"
 serde = { version = "1.0.164", features = ["derive"] }
 sqlx = { version = "0.7.1", features = ["runtime-tokio-native-tls", "json", "postgres"] }
+thiserror = "1.0.44"
 tokio = { version = "1.28.2", features = ["full"] }

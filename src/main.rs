@@ -37,7 +37,7 @@ async fn main() {
         .layer(Extension(schema));
 
     println!("Server is running at http://localhost:8080");
-    Server::bind(&"127.0.0.1:8080".parse().unwrap())
+    Server::bind(&"0.0.0.0:8080".parse().unwrap())
         .serve(app.into_make_service())
         .await
         .unwrap();

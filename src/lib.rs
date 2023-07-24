@@ -1,5 +1,6 @@
 use async_graphql::{Context, EmptySubscription, Object, Schema};
 use nanoid::nanoid;
+use std::str;
 use thiserror::Error;
 
 pub type ServiceSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
@@ -72,6 +73,33 @@ impl MutationRoot {
         storage.insert(id, title, content, password).await
     }
 
+    async fn update_paste(
+        &self,
+        ctx: &Context<'_>,
+        id: String,
+        title: String,
+        content: String,
+        password: Option<String>,
+    ) -> Result<Paste, PasteError> {
+        let mut storage = ctx.data_unchecked::<Storage>().lock().await;
+        let paste = storage.get(&id).await?;
+
+        match paste {
+            None => Err(PasteError::InvalidId),
+            Some(paste) => match paste.password {
+                None => Ok(paste),
+                Some(stored_pass) => match password {
+                    None => Err(PasteError::InvalidPassword),
+                    Some(input_pass) => {
+                        if stored_pass == input_pass {
+                            return storage.update(id, title, content, Some(input_pass)).await;
+                        }
+                        Err(PasteError::InvalidPassword)
+                    }
+                },
+            },
+        }
+    }
     async fn delete_paste(
         &self,
         ctx: &Context<'_>,
@@ -84,10 +112,7 @@ impl MutationRoot {
         match paste {
             None => Err(PasteError::InvalidId),
             Some(paste) => match paste.password {
-                None => {
-                    storage.remove(&id).await?;
-                    Ok(true)
-                }
+                None => Ok(false),
                 Some(stored_pass) => match password {
                     None => Err(PasteError::InvalidPassword),
                     Some(input_pass) => {

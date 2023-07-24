@@ -41,6 +41,32 @@ impl PasteStorage {
         Ok(paste)
     }
 
+    pub async fn update(
+        &mut self,
+        id: String,
+        title: String,
+        content: String,
+        password: Option<String>,
+    ) -> Result<Paste, PasteError> {
+        let paste = Paste {
+            id,
+            title,
+            content,
+            password,
+        };
+
+        sqlx::query!(
+            "UPDATE paste set title=$2, content=$3, password=$4 where id=$1",
+            paste.id,
+            paste.title,
+            paste.content,
+            paste.password
+        )
+        .execute(&self.pool)
+        .await?;
+        Ok(paste)
+    }
+
     pub async fn remove(&mut self, id: &str) -> Result<(), PasteError> {
         sqlx::query!("DELETE FROM paste WHERE id=$1", id)
             .execute(&self.pool)

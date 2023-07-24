@@ -36,7 +36,7 @@ async fn main() {
         .route("/", get(graphiql).post(graphql_handler))
         .layer(Extension(schema));
 
-    println!("Server is running at http://localhost:8080");
+    println!("Server is running at http://0.0.0.0:8080");
     Server::bind(&"0.0.0.0:8080".parse().unwrap())
         .serve(app.into_make_service())
         .await

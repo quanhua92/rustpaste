@@ -1,6 +1,8 @@
+use async_graphql::futures_util::lock::Mutex;
 use async_graphql::{Context, EmptySubscription, Object, Schema};
 use nanoid::nanoid;
 use std::str;
+use std::sync::Arc;
 use thiserror::Error;
 
 pub type ServiceSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
@@ -8,9 +10,11 @@ pub struct QueryRoot;
 pub struct MutationRoot;
 
 mod storage;
-pub use storage::{PasteStorage, Storage};
+pub use storage::PasteStorage;
 
-#[derive(Clone)]
+pub type Storage = Arc<Mutex<PasteStorage>>;
+
+#[derive(Clone, Debug)]
 pub struct Paste {
     id: String,
     title: String,
@@ -24,7 +28,7 @@ pub enum PasteError {
     InvalidId,
     #[error("invalid password")]
     InvalidPassword,
-    #[error("database error")]
+    #[error("database error: {0}")]
     DatabaseError(#[from] sqlx::Error),
 }
 

@@ -1,6 +1,3 @@
-use std::sync::Arc;
-
-use async_graphql::futures_util::lock::Mutex;
 use sqlx::{Pool, Postgres};
 
 use crate::{Paste, PasteError};
@@ -8,8 +5,6 @@ use crate::{Paste, PasteError};
 pub struct PasteStorage {
     pool: Pool<Postgres>,
 }
-
-pub type Storage = Arc<Mutex<PasteStorage>>;
 
 impl PasteStorage {
     pub fn new(pool: Pool<Postgres>) -> Self {

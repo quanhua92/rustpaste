@@ -91,7 +91,7 @@ impl MutationRoot {
         match paste {
             None => Err(PasteError::InvalidId),
             Some(paste) => match paste.password {
-                None => Ok(paste),
+                None => storage.update(id, title, content, paste.password).await,
                 Some(stored_pass) => match password {
                     None => Err(PasteError::InvalidPassword),
                     Some(input_pass) => {
